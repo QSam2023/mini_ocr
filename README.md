@@ -74,13 +74,37 @@ python inference.py --image photo.jpg --model ./deepseek_ocr --output results
 
 ### Evaluation
 
-Evaluate the model using Character Error Rate (CER):
+#### Single Sample Evaluation
+
+Evaluate the model on a single sample using Character Error Rate (CER):
 
 ```bash
-python eval_model.py
+python eval_model.py --sample-idx 100
 ```
 
-This will evaluate the model on a sample from the test dataset.
+#### Dataset Evaluation
+
+Evaluate the model on your custom dataset with JSON annotations:
+
+```bash
+# Evaluate on stamp data
+python evaluate_dataset.py --annotation ocr_data/stamp_data_example/stamp_01/stamp_ocr_01.json
+
+# Evaluate on table data
+python evaluate_dataset.py --annotation ocr_data/table_data_example/table_01/table_ocr_01.json
+
+# Limit to first 10 samples
+python evaluate_dataset.py --annotation ocr_data/stamp_data_example/stamp_01/stamp_ocr_01.json --max-samples 10
+
+# Save results to custom location
+python evaluate_dataset.py --annotation ocr_data/stamp_data_example/stamp_01/stamp_ocr_01.json --save-json my_results.json
+```
+
+The evaluation script will:
+- Use the prompts specified in the JSON file
+- Compare predictions against ground truth annotations
+- Calculate CER, WER, and exact match metrics
+- Generate a detailed report with all results
 
 ## Project Structure
 
@@ -88,13 +112,18 @@ This will evaluate the model on a sample from the test dataset.
 mini_ocr/
 ├── README.md                      # Project documentation
 ├── requirements.txt               # Python dependencies
-├── env_setup.sh                  # Alternative setup script
-├── .gitignore                    # Git ignore rules
-├── download_model.py             # Model download script
-├── DeepSeekOCRDataCollator.py    # Custom data collator for OCR
-├── train.py                      # Training script
-├── inference.py                  # Inference script
-└── eval_model.py                 # Evaluation script
+├── config.yaml                    # Configuration file
+├── config_loader.py               # Configuration loader utility
+├── .gitignore                     # Git ignore rules
+├── download_model.py              # Model download script
+├── DeepSeekOCRDataCollator.py     # Custom data collator for OCR
+├── train.py                       # Training script
+├── inference.py                   # Inference script
+├── eval_model.py                  # Single sample evaluation
+├── evaluate_dataset.py            # Dataset evaluation script
+└── ocr_data/                      # Custom OCR datasets
+    ├── stamp_data_example/        # Stamp/seal detection data
+    └── table_data_example/        # Table extraction data
 ```
 
 ## Model Architecture

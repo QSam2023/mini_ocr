@@ -32,6 +32,9 @@ PyYAML>=6.0
 # Evaluation Metrics
 jiwer>=3.0.0
 
+# Progress Bar
+tqdm>=4.65.0
+
 # Optional: For better performance
 # bitsandbytes>=0.41.0
 # flash-attn>=2.0.0

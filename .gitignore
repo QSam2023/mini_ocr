@@ -85,3 +85,4 @@ temp/
 # Claude doc
 IMPROVEMENTS.md
 UPDATE_NOTES.md
+*.md
