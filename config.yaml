@@ -1,0 +1,78 @@
+# Mini OCR Configuration File
+# This file contains default configuration for training, inference, and evaluation
+
+# Model Configuration
+model:
+  name: "unsloth/DeepSeek-OCR"
+  local_path: "./deepseek_ocr"
+  load_in_4bit: false
+  trust_remote_code: true
+  use_gradient_checkpointing: "unsloth"
+
+# Training Configuration
+training:
+  # Dataset
+  dataset_name: "hezarai/parsynth-ocr-200k"
+  dataset_split: "train[:1000]"  # Use first 1000 samples for quick training
+
+  # OCR prompt
+  instruction: "<image>\nFree OCR. "
+
+  # LoRA parameters
+  lora:
+    rank: 16
+    alpha: 16
+    dropout: 0.0
+    target_modules:
+      - "q_proj"
+      - "k_proj"
+      - "v_proj"
+      - "o_proj"
+      - "gate_proj"
+      - "up_proj"
+      - "down_proj"
+
+  # Training arguments
+  batch_size: 2
+  gradient_accumulation_steps: 4
+  warmup_steps: 5
+  max_steps: 60
+  learning_rate: 0.0002  # 2e-4
+  logging_steps: 1
+  optimizer: "adamw_8bit"
+  weight_decay: 0.001
+  lr_scheduler_type: "linear"
+  seed: 3407
+  output_dir: "outputs"
+  save_dir: "lora_model"
+
+# Data Collator Configuration
+data_collator:
+  image_size: 640
+  base_size: 1024
+  crop_mode: true
+  train_on_responses_only: true
+
+# Inference Configuration
+inference:
+  prompt: "<image>\nFree OCR. "
+  output_path: "output"
+  base_size: 1024
+  image_size: 640
+  crop_mode: true
+  save_results: true
+  test_compress: false
+
+# Evaluation Configuration
+evaluation:
+  dataset_name: "hezarai/parsynth-ocr-200k"
+  dataset_split: "train[:2000]"
+  sample_idx: 1523
+  output_path: "eval_output"
+  metrics:
+    - "cer"  # Character Error Rate
+
+# Logging Configuration
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: "%(asctime)s - %(levelname)s - %(message)s"
