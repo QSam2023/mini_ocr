@@ -64,12 +64,12 @@ The trained LoRA weights will be saved to `./lora_model/`.
 Run inference on a single image:
 
 ```bash
-python inference.py
+python inference.py --image path/to/your/image.jpg
 ```
 
-Edit `inference.py` to specify your image path:
-```python
-image_file = "your_image.jpg"
+Optional parameters:
+```bash
+python inference.py --image photo.jpg --model ./deepseek_ocr --output results
 ```
 
 ### Evaluation
@@ -101,9 +101,12 @@ mini_ocr/
 
 This project uses:
 - **Base Model**: DeepSeek-OCR (vision-language model)
+- **Inference**: Pure transformers (for compatibility)
+- **Training Framework**: Unsloth for efficient LoRA fine-tuning
 - **Fine-tuning Method**: LoRA (Low-Rank Adaptation)
-- **Framework**: Unsloth for efficient training
 - **Optimization**: 8-bit AdamW optimizer
+
+**Note**: Inference scripts use pure transformers without Unsloth to avoid compatibility issues. Training still uses Unsloth for speed benefits.
 
 ## Data Format
 

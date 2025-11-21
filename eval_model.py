@@ -13,8 +13,7 @@ from typing import Any, Dict
 
 from datasets import load_dataset
 from jiwer import cer
-from unsloth import FastVisionModel
-from transformers import AutoModel
+from transformers import AutoModel, AutoTokenizer
 
 # Configure logging
 logging.basicConfig(
@@ -26,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 def load_model(model_path: str = "./deepseek_ocr") -> tuple[Any, Any]:
     """
-    Load the DeepSeek-OCR model and tokenizer.
+    Load the DeepSeek-OCR model and tokenizer using transformers.
 
     Args:
         model_path: Path to the model directory
@@ -47,14 +46,20 @@ def load_model(model_path: str = "./deepseek_ocr") -> tuple[Any, Any]:
 
     try:
         logger.info(f"Loading model from {model_path}...")
-        model, tokenizer = FastVisionModel.from_pretrained(
+
+        # Load with transformers directly (no Unsloth for compatibility)
+        tokenizer = AutoTokenizer.from_pretrained(
             model_path,
-            load_in_4bit=False,
-            auto_model=AutoModel,
-            trust_remote_code=True,
-            unsloth_force_compile=True,
-            use_gradient_checkpointing="unsloth",
+            trust_remote_code=True
         )
+
+        model = AutoModel.from_pretrained(
+            model_path,
+            trust_remote_code=True,
+            torch_dtype="auto",
+            device_map="auto"
+        )
+
         logger.info("Model loaded successfully")
         return model, tokenizer
 
@@ -97,7 +102,7 @@ def evaluate_sample(
 
         # Run inference
         result = model.infer(
-            tokenizer,
+            tokenizer=tokenizer,
             prompt="<image>\nFree OCR. ",
             image_file=temp_image_path,
             output_path=output_dir,
@@ -105,6 +110,7 @@ def evaluate_sample(
             image_size=640,
             crop_mode=True,
             save_results=False,
+            test_compress=False,
         )
 
         # Extract prediction

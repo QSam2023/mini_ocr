@@ -1,8 +1,11 @@
 # Core ML Frameworks
-unsloth
 transformers>=4.56.0
 torch>=2.0.0
 timm>=0.9.0
+
+# Training Framework (optional for inference)
+# Uncomment if you need to train the model
+# unsloth
 
 # Training and Data
 datasets>=2.14.0
