@@ -65,16 +65,26 @@ def run_inference(
     model,
     tokenizer,
     image_path: str,
-    prompt: str = "<image>\nFree OCR. "
+    prompt: str = "<image>\nFree OCR. ",
+    output_path: str = "output",
+    base_size: int = 1024,
+    image_size: int = 640,
+    crop_mode: bool = True,
+    save_results: bool = False
 ):
     """
-    Run OCR inference on an image.
+    Run OCR inference on an image using model's infer method.
 
     Args:
         model: Loaded OCR model
         tokenizer: Model tokenizer
         image_path: Path to input image
         prompt: OCR prompt template
+        output_path: Directory to save results
+        base_size: Base size for image processing
+        image_size: Target image size
+        crop_mode: Whether to use dynamic cropping
+        save_results: Whether to save intermediate results
 
     Returns:
         Extracted text from the image
@@ -86,36 +96,18 @@ def run_inference(
     try:
         logger.info(f"Running inference on {image_path}...")
 
-        # Load image
-        image = Image.open(image_path)
-
-        # Check if model has generate method (for causal LM models)
-        if hasattr(model, 'generate'):
-            # Prepare inputs
-            inputs = tokenizer(
-                prompt,
-                images=image,
-                return_tensors="pt"
-            ).to(model.device)
-
-            # Generate
-            outputs = model.generate(**inputs, max_new_tokens=512)
-            result = tokenizer.decode(outputs[0], skip_special_tokens=True)
-
-        # Otherwise try the infer method if available
-        elif hasattr(model, 'infer'):
-            result = model.infer(
-                tokenizer,
-                prompt=prompt,
-                image_file=image_path,
-                output_path="output",
-                base_size=1024,
-                image_size=640,
-                crop_mode=True,
-                save_results=False,
-            )
-        else:
-            raise AttributeError("Model doesn't have 'generate' or 'infer' method")
+        # DeepSeek-OCR uses its own infer method
+        result = model.infer(
+            tokenizer=tokenizer,
+            prompt=prompt,
+            image_file=image_path,
+            output_path=output_path,
+            base_size=base_size,
+            image_size=image_size,
+            crop_mode=crop_mode,
+            save_results=save_results,
+            test_compress=False,
+        )
 
         logger.info("Inference completed successfully")
         return result
